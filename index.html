@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ang Oras na Hindi Na Mababalik</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Palatino', 'Georgia', serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #c9a77a, #b8956c);
+            color: #3e2716;
+            min-height: 100vh;
+        }
+
+        .book-reader {
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .book-container {
+            position: relative;
+            width: 100%;
+            height: 85vh;
+            min-height: 600px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            padding: 2.2rem 2rem;
+            opacity: 0;
+            transform: translateX(120%);
+            transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease;
+            overflow-y: auto;
+
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+
+            /* ✅ Vintage paper texture effect */
+            background-blend-mode: multiply;
+        }
+
+        .page.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .page.prev {
+            opacity: 0;
+            transform: translateX(-120%);
+        }
+
+        .cover-page   { background-image: url('bg-cover.jpg'); }
+        .page-2       { background-image: url('bg-page2.jpg'); }
+        .page-3       { background-image: url('bg-page3.jpg'); }
+        .page-4       { background-image: url('bg-page4.jpg'); }
+        .page-5       { background-image: url('bg-page5.jpg'); }
+        .page-6       { background-image: url('bg-page6.jpg'); }
+        .page-7       { background-image: url('bg-page7.jpg'); }
+
+        .cover-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .cover-page h1 {
+            font-size: 2.2rem;
+            color: #4a2c1a;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .cover-page .subtitle {
+            font-size: 1.05rem;
+            color: #6b4f3a;
+            max-width: 500px;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ✅ Vintage text content box */
+        .text-content {
+            background: rgba(245, 238, 220, 0.96);
+            padding: 1.6rem;
+            border-radius: 12px;
+            border: 1px solid #a8865c;
+
+            /* ✅ Old paper texture */
+            background-image:
+                radial-gradient(circle at 10% 10%, rgba(139, 90, 43, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 90% 20%, rgba(139, 90, 43, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 50% 80%, rgba(139, 90, 43, 0.07) 0%, transparent 55%);
+
+            box-shadow:
+                inset 0 0 25px rgba(139, 90, 43, 0.12),
+                0 8px 22px rgba(0,0,0,0.18);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: #4a2c1a;
+            margin-bottom: 0.9rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #b99a6c;
+        }
+
+        /* ✅ Vintage image style */
+        img {
+            width: 100%;
+            border-radius: 10px;
+            margin: 0.9rem 0;
+            border: 3px solid #d9c7ad;
+
+            /* ✅ Old photo / sepia effect */
+            filter: sepia(35%) contrast(92%) brightness(96%);
+
+            box-shadow:
+                0 10px 25px rgba(0,0,0,0.2),
+                inset 0 0 0 1px rgba(255,255,255,0.15);
+        }
+
+        p {
+            font-size: 1rem;
+            line-height: 1.7;
+            text-align: justify;
+            text-indent: 1.7rem;
+            margin-bottom: 0.8rem;
+            color: #3e2716;
+        }
+
+        .aral {
+            margin-top: 1.4rem;
+            padding: 1.2rem;
+            background: rgba(235, 220, 195, 0.98);
+            border-left: 4px solid #8b5a2b;
+            border-radius: 10px;
+            border: 1px solid #a8865c;
+            color: #4a2c1a;
+            font-weight: 500;
+            line-height: 1.8;
+            font-size: 0.98rem;
+
+            box-shadow: inset 0 0 18px rgba(139, 90, 43, 0.1);
+        }
+
+        footer {
+            margin-top: 2rem;
+            padding: 1.2rem;
+            background: rgba(90, 45, 24, 0.95);
+            color: #f7efe3;
+            text-align: center;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            border: 1px solid #7a3f20;
+
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .nav-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(245, 238, 220, 0.98);
+            border-top: 1px solid #b99a6c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.15);
+        }
+
+        .nav-btn {
+            padding: 0.65rem 1.3rem;
+            background: #6d3c22;
+            color: #fff8ec;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.25s ease;
+
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #8b5030;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #b9a482;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .page-number {
+            color: #6b4f3a;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .page::-webkit-scrollbar { width: 5px; }
+        .page::-webkit-scrollbar-thumb { background: #b99a6c; border-radius: 3px; }
+
+        @media (max-width: 768px) {
+            .book-reader { padding: 10px; }
+            .book-container { height: 88vh; min-height: 520px; }
+            .page { padding: 1.5rem 1.2rem; background-size: 100% 100%; }
+            .cover-page h1 { font-size: 1.8rem; }
+            .nav-btn { padding: 0.55rem 1rem; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="book-reader">
+        <div class="book-container">
+
+            <div class="page cover-page active" id="p1">
+                <h1>Ang Oras na Hindi Na Mababalik</h1>
+                <p class="subtitle">Isang kwento tungkol sa halaga ng panahon, disiplina, at tamang paggamit ng bawat sandali.</p>
+                <img src="img-cover.jpg" alt="Cover ng Kwento" style="max-width: 360px; margin: 1.2rem auto; display: block;">
+            </div>
+
+            <div class="page page-2" id="p2">
+                <div class="text-content">
+                    <h2>Panimula</h2>
+                    <img src="img-scene1.jpg" alt="Si Ana sa Paaralan">
+                    <p>Si Ana ay isang masipag na estudyante na kilala sa kanilang paaralan dahil sa kanyang husay sa pag‑aaral. Pangarap niyang makatapos at magkaroon ng magandang kinabukasan upang matulungan ang kanyang pamilya. Ngunit habang lumilipas ang panahon, unti‑unti niyang nakalimutan ang halaga ng oras dahil sa dami ng bagay na pinagkakaabalahan.</p>
+                </div>
+            </div>
+
+            <div class="page page-3" id="p3">
+                <div class="text-content">
+                    <h2>Ang Pagpapaliban</h2>
+                    <img src="img-scene2.jpg" alt="Nagpapaliban ng Gawain">
+                    <p>Pag‑uwi niya mula sa paaralan, madalas niyang inuuna ang panonood ng mga palabas, pakikipag‑usap sa kaibigan, at iba pang bagay na nagbibigay sa kanya ng kasiyahan. Lagi niyang sinasabi sa sarili, “Mamaya ko na gagawin ang aking mga gawain. Marami pa namang oras.”</p>
+                </div>
+            </div>
+
+            <div class="page page-4" id="p4">
+                <div class="text-content">
+                    <h2>Ang Pagbabago</h2>
+                    <img src="img-scene3.jpg" alt="Pagbaba ng Marka">
+                    <p>Dahil dito, madalas siyang nagpupuyat upang tapusin ang kanyang mga proyekto at takdang‑aralin. Dumating ang panahon na bumaba ang kanyang mga marka at napansin ng kanyang mga guro ang pagbabago sa kanyang pagganap.</p>
+                </div>
+            </div>
+
+            <div class="page page-5" id="p5">
+                <div class="text-content">
+                    <h2>Ang Mahalagang Proyekto</h2>
+                    <img src="img-scene4.jpg" alt="Nagmamadaling Gumawa">
+                    <p>Isang araw, nagbigay ang kanilang guro ng isang mahalagang proyekto na kailangan nilang ipasa makalipas ang isang linggo. Tulad ng dati, ipinagpaliban muna ni Ana ang paggawa dahil inisip niyang marami pa siyang oras.</p>
+                    <p>Ngunit dumating ang araw bago ang pasahan at doon niya napagtanto na hindi na sapat ang natitirang panahon. Nagmadali siyang gumawa ngunit dahil sa pagmamadali, hindi niya naibigay ang pinakamahusay niyang kakayahan.</p>
+                </div>
+            </div>
+
+            <div class="page page-6" id="p6">
+                <div class="text-content">
+                    <h2>Ang Payo ng Ina</h2>
+                    <img src="img-scene5.jpg" alt="Kinakausap ng Ina si Ana">
+                    <p>Nang ibalik ng guro ang kanilang proyekto, nalungkot si Ana dahil mababa ang kanyang nakuha. Hindi dahil hindi niya kayang gawin ang gawain, kundi dahil hindi niya ginamit nang tama ang oras na mayroon siya.</p>
+                    <p>Napansin ng kanyang ina ang kanyang kalungkutan at kinausap siya. “Anak, ang oras ay parang tubig na dumadaloy sa ilog. Kapag lumipas na, hindi na ito maaaring ibalik. Kaya dapat natin itong pahalagahan habang mayroon tayo.”</p>
+                </div>
+            </div>
+
+            <div class="page page-7" id="p7">
+                <div class="text-content">
+                    <h2>Wakas at Aral</h2>
+                    <img src="img-scene6.jpg" alt="Maayos na Pag‑aaral">
+                    <p>Naisip ni Ana ang lahat ng pagkakataong sinayang niya. Napagtanto niya na ang tagumpay ay hindi lamang nakukuha sa talino at kakayahan, kundi sa disiplina at tamang paggamit ng panahon.</p>
+                    <p>Mula noon, sinimulan niyang ayusin ang kanyang oras. Gumawa siya ng iskedyul para sa pag‑aaral, pahinga, at iba pang gawain. Unti‑unti siyang bumalik sa dating sigla at muling gumanda ang kanyang mga marka.</p>
+                    <p>Sa huli, natutunan ni Ana na ang bawat sandali ay mahalaga. Hindi dapat hintayin ang pagsisisi bago matutunan ang halaga ng panahon.</p>
+
+                    <div class="aral">Aral: Ang oras ay isang kayamanang hindi na mababalik, kaya dapat itong gamitin nang wasto at may pananagutan.</div>
+
+                    <footer>
+                        <strong>Prelim Project — Storytelling Static Website</strong><br>
+                        Ang Oras na Hindi Na Mababalik<br>
+                        <br>
+                        Mga Miyembro: [Ilagay ang Inyong Pangalan]<br>
+                        Seksyon: [Inyong Seksyon]<br>
+                        Petsa: Agosto 2026
+                    </footer>
+                </div>
+            </div>
+
+            <div class="nav-area">
+                <button class="nav-btn" id="prevBtn" onclick="changePage(-1)" disabled>⬅️ Nakaraan</button>
+                <span class="page-number" id="pageNumber">Pahina 1 / 7</span>
+                <button class="nav-btn" id="nextBtn" onclick="changePage(1)">Susunod ➡️</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = 7;
+
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageNumber = document.getElementById('pageNumber');
+
+        function updatePages() {
+            document.querySelectorAll('.page').forEach((page, index) => {
+                const pageNum = index + 1;
+                page.classList.remove('active', 'prev');
+                if (pageNum === currentPage) {
+                    page.classList.add('active');
+                } else if (pageNum < currentPage) {
+                    page.classList.add('prev');
+                }
+            });
+
+            prevBtn.disabled = (currentPage === 1);
+            nextBtn.disabled = (currentPage === totalPages);
+            pageNumber.textContent = `Pahina ${currentPage} / ${totalPages}`;
+        }
+
+        function changePage(direction) {
+            const newPage = currentPage + direction;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                updatePages();
+            }
+        }
+    </script>
+
+</body>
+</html>
